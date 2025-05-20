@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XML Filter Pro - Extrair chCTe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3f37c9;
+            --accent-color: #4895ef;
+            --light-color: #f8f9fa;
+            --dark-color: #212529;
+            --success-color: #4cc9f0;
+            --warning-color: #f8961e;
+            --danger-color: #f94144;
+            --border-radius: 8px;
+            --box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            --transition: all 0.3s ease;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f7fa;
+            color: var(--dark-color);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--box-shadow);
+            padding: 30px;
+            margin-bottom: 20px;
+            transition: var(--transition);
+        }
+
+        .card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .input-section, .output-section {
+            margin-bottom: 25px;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            color: var(--secondary-color);
+            font-size: 1.2rem;
+        }
+
+        .section-title i {
+            margin-right: 10px;
+            font-size: 1.4rem;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .file-upload-label {
+            display: block;
+            padding: 15px;
+            background-color: var(--light-color);
+            border: 2px dashed #adb5bd;
+            border-radius: var(--border-radius);
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .file-upload-label:hover {
+            border-color: var(--primary-color);
+            background-color: rgba(67, 97, 238, 0.05);
+        }
+
+        .file-upload-label i {
+            font-size: 2rem;
+            color: var(--primary-color);
+            margin-bottom: 10px;
+        }
+
+        .file-upload-label span {
+            display: block;
+            margin-top: 5px;
+            color: #6c757d;
+        }
+
+        #fileUpload {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 20px 0;
+            color: #6c757d;
+        }
+
+        .divider::before, .divider::after {
+            content: "";
+            flex: 1;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .divider::before {
+            margin-right: 10px;
+        }
+
+        .divider::after {
+            margin-left: 10px;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 1px solid #ced4da;
+            border-radius: var(--border-radius);
+            font-family: 'Roboto', sans-serif;
+            font-size: 0.95rem;
+            resize: vertical;
+            transition: var(--transition);
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px rgba(72, 149, 239, 0.25);
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: var(--transition);
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background-color: #5a6268;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background-color: var(--success-color);
+            color: white;
+        }
+
+        .btn-success:hover {
+            background-color: #3aa8d8;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d62c2f;
+            transform: translateY(-2px);
+        }
+
+        .status {
+            padding: 15px;
+            border-radius: var(--border-radius);
+            margin-top: 20px;
+            display: none;
+        }
+
+        .status.success {
+            background-color: rgba(76, 201, 240, 0.1);
+            border-left: 4px solid var(--success-color);
+            color: #1a6d8f;
+            display: block;
+        }
+
+        .status.error {
+            background-color: rgba(249, 65, 68, 0.1);
+            border-left: 4px solid var(--danger-color);
+            color: #c82333;
+            display: block;
+        }
+
+        .file-info {
+            display: flex;
+            align-items: center;
+            background-color: var(--light-color);
+            padding: 10px 15px;
+            border-radius: var(--border-radius);
+            margin-top: 10px;
+            font-size: 0.9rem;
+        }
+
+        .file-info i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .result-count {
+            font-size: 0.9rem;
+            color: #6c757d;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-count i {
+            margin-right: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <h1><i class="fas fa-code"></i> XML Filter Pro</h1>
+                <p>Extraia tags chCTe de documentos XML de forma rápida e eficiente</p>
+            </div>
+
+            <div class="input-section">
+                <div class="section-title">
+                    <i class="fas fa-file-upload"></i>
+                    <h2>Carregar Arquivo XML</h2>
+                </div>
+                
+                <div class="file-upload-wrapper">
+                    <label for="fileUpload" class="file-upload-label">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <strong>Clique para selecionar um arquivo</strong>
+                        <span>ou arraste e solte aqui</span>
+                    </label>
+                    <input type="file" id="fileUpload" accept=".xml" />
+                </div>
+                
+                <div id="fileInfo" class="file-info" style="display: none;">
+                    <i class="fas fa-file-alt"></i>
+                    <span id="fileName"></span>
+                </div>
+
+                <div class="divider">OU</div>
+                
+                <div class="section-title">
+                    <i class="fas fa-paste"></i>
+                    <h2>Cole seu XML manualmente</h2>
+                </div>
+                <textarea id="xmlInput" placeholder="Cole o conteúdo do XML aqui..."></textarea>
+            </div>
+
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="processXML()">
+                    <i class="fas fa-cogs"></i> Processar XML
+                </button>
+                <button class="btn btn-success" onclick="downloadResult()">
+                    <i class="fas fa-download"></i> Baixar Resultado
+                </button>
+                <button class="btn btn-danger" onclick="clearAll()">
+                    <i class="fas fa-trash-alt"></i> Limpar Tudo
+                </button>
+            </div>
+
+            <div id="statusMessage" class="status"></div>
+
+            <div class="output-section">
+                <div class="section-title">
+                    <i class="fas fa-file-code"></i>
+                    <h2>Resultado</h2>
+                </div>
+                <div class="result-count">
+                    <i class="fas fa-info-circle"></i>
+                    <span id="resultInfo">Nenhum resultado gerado ainda</span>
+                </div>
+                <textarea id="xmlOutput" readonly placeholder="Os resultados aparecerão aqui..."></textarea>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos da interface
+        const fileUpload = document.getElementById('fileUpload');
+        const xmlInput = document.getElementById('xmlInput');
+        const xmlOutput = document.getElementById('xmlOutput');
+        const statusMessage = document.getElementById('statusMessage');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const resultInfo = document.getElementById('resultInfo');
+
+        // Carrega o arquivo selecionado
+        fileUpload.addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            // Mostra informações do arquivo
+            fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
+            fileInfo.style.display = 'flex';
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                xmlInput.value = e.target.result;
+                showStatus('Arquivo carregado com sucesso!', 'success');
+            };
+            reader.onerror = function() {
+                showStatus('Erro ao ler o arquivo.', 'error');
+            };
+            reader.readAsText(file);
+        });
+
+        // Formata o tamanho do arquivo
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Mostra mensagens de status
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = 'status ' + type;
+            setTimeout(() => {
+                statusMessage.style.opacity = '1';
+            }, 100);
+            
+            // Esconde a mensagem após 5 segundos
+            setTimeout(() => {
+                statusMessage.style.opacity = '0';
+                setTimeout(() => {
+                    statusMessage.className = 'status';
+                    statusMessage.textContent = '';
+                }, 300);
+            }, 5000);
+        }
+
+        // Processa o XML
+        function processXML() {
+            const xmlContent = xmlInput.value.trim();
+            
+            if (!xmlContent) {
+                showStatus('Por favor, carregue um arquivo XML ou cole o conteúdo na área de texto.', 'error');
+                return;
+            }
+            
+            try {
+                // Usando expressão regular para encontrar todas as tags chCTe dentro de idDocAntEle
+                const regex = /<idDocAntEle>(.*?)<chCTe>(.*?)<\/chCTe>(.*?)<\/idDocAntEle>/gis;
+                let matches;
+                const foundChCTe = [];
+                
+                while ((matches = regex.exec(xmlContent)) !== null) {
+                    if (matches[2]) {
+                        foundChCTe.push(matches[2].trim());
+                    }
+                }
+                
+                if (foundChCTe.length > 0) {
+                    xmlOutput.value = foundChCTe.join('\n');
+                    resultInfo.textContent = `${foundChCTe.length} chCTe(s) encontrada(s)`;
+                    showStatus(`Processamento concluído! ${foundChCTe.length} chaves encontradas.`, 'success');
+                } else {
+                    xmlOutput.value = '';
+                    resultInfo.textContent = 'Nenhuma tag chCTe encontrada dentro de idDocAntEle';
+                    showStatus('Nenhuma tag chCTe encontrada dentro de idDocAntEle.', 'error');
+                }
+            } catch (e) {
+                xmlOutput.value = '';
+                resultInfo.textContent = 'Erro ao processar o XML';
+                showStatus('Erro ao processar o XML: ' + e.message, 'error');
+                console.error(e);
+            }
+        }
+
+        // Limpa tudo
+        function clearAll() {
+            fileUpload.value = '';
+            xmlInput.value = '';
+            xmlOutput.value = '';
+            fileInfo.style.display = 'none';
+            resultInfo.textContent = 'Nenhum resultado gerado ainda';
+            showStatus('Todos os campos foram limpos.', 'success');
+        }
+
+        // Faz download do resultado
+        function downloadResult() {
+            const output = xmlOutput.value;
+            if (!output) {
+                showStatus('Nenhum resultado para download.', 'error');
+                return;
+            }
+            
+            try {
+                const blob = new Blob([output], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'chCTe_resultado.txt';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                showStatus('Download iniciado com sucesso!', 'success');
+            } catch (e) {
+                showStatus('Erro ao gerar o download: ' + e.message, 'error');
+            }
+        }
+
+        // Drag and drop
+        document.addEventListener('DOMContentLoaded', function() {
+            const dropArea = document.querySelector('.file-upload-label');
+            
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                dropArea.style.borderColor = var(--primary-color);
+                dropArea.style.backgroundColor = 'rgba(67, 97, 238, 0.1)';
+            }
+            
+            function unhighlight() {
+                dropArea.style.borderColor = '#adb5bd';
+                dropArea.style.backgroundColor = var(--light-color);
+            }
+            
+            dropArea.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length) {
+                    fileUpload.files = files;
+                    const event = new Event('change');
+                    fileUpload.dispatchEvent(event);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
