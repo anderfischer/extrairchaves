@@ -63,6 +63,10 @@
             color: var(--primary-color);
             font-size: 2.2rem;
             margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
         }
 
         .header p {
@@ -238,6 +242,8 @@
             border-radius: var(--border-radius);
             margin-top: 20px;
             display: none;
+            opacity: 1;
+            transition: opacity 0.3s ease;
         }
 
         .status.success {
@@ -304,7 +310,7 @@
     <div class="container">
         <div class="card">
             <div class="header">
-                <h1><class="fas fa-code"> XML Filter Pro</h1>
+                <h1><i class="fas fa-code"></i> XML Filter Pro</h1>
                 <p>Extraia tags chCTe de documentos XML de forma rápida e eficiente</p>
             </div>
 
@@ -380,6 +386,13 @@
             const file = e.target.files[0];
             if (!file) return;
             
+            // Verifica se é um arquivo XML
+            if (!file.name.toLowerCase().endsWith('.xml')) {
+                showStatus('Por favor, selecione um arquivo XML válido.', 'error');
+                fileUpload.value = '';
+                return;
+            }
+            
             // Mostra informações do arquivo
             fileName.textContent = `${file.name} (${formatFileSize(file.size)})`;
             fileInfo.style.display = 'flex';
@@ -408,9 +421,8 @@
         function showStatus(message, type) {
             statusMessage.textContent = message;
             statusMessage.className = 'status ' + type;
-            setTimeout(() => {
-                statusMessage.style.opacity = '1';
-            }, 100);
+            statusMessage.style.display = 'block';
+            statusMessage.style.opacity = '1';
             
             // Esconde a mensagem após 5 segundos
             setTimeout(() => {
@@ -418,6 +430,7 @@
                 setTimeout(() => {
                     statusMessage.className = 'status';
                     statusMessage.textContent = '';
+                    statusMessage.style.display = 'none';
                 }, 300);
             }, 5000);
         }
@@ -432,16 +445,37 @@
             }
             
             try {
-                // Usando expressão regular para encontrar todas as tags chCTe dentro de idDocAntEle
-                const regex = /<idDocAntEle>(.*?)<chCTe>(.*?)<\/chCTe>(.*?)<\/idDocAntEle>/gis;
-                let matches;
-                const foundChCTe = [];
+                // Expressão regular para encontrar tags chCTe
+                // Vou tentar várias abordagens para capturar diferentes formatos
+                let foundChCTe = [];
                 
-                while ((matches = regex.exec(xmlContent)) !== null) {
-                    if (matches[2]) {
-                        foundChCTe.push(matches[2].trim());
+                // Tentativa 1: Procurar por tags chCTe dentro de qualquer contexto
+                const regex1 = /<chCTe[^>]*>([^<]+)<\/chCTe>/gi;
+                let match1;
+                while ((match1 = regex1.exec(xmlContent)) !== null) {
+                    foundChCTe.push(match1[1].trim());
+                }
+                
+                // Tentativa 2: Procurar por chCTe dentro de idDocAntEle especificamente
+                if (foundChCTe.length === 0) {
+                    const regex2 = /<idDocAntEle>[\s\S]*?<chCTe[^>]*>([^<]+)<\/chCTe>[\s\S]*?<\/idDocAntEle>/gi;
+                    let match2;
+                    while ((match2 = regex2.exec(xmlContent)) !== null) {
+                        foundChCTe.push(match2[1].trim());
                     }
                 }
+                
+                // Tentativa 3: Procurar por qualquer ocorrência de chCTe (case insensitive)
+                if (foundChCTe.length === 0) {
+                    const regex3 = /chCTe[^>]*>([^<]+)<\//gi;
+                    let match3;
+                    while ((match3 = regex3.exec(xmlContent)) !== null) {
+                        foundChCTe.push(match3[1].trim());
+                    }
+                }
+                
+                // Remover duplicatas
+                foundChCTe = [...new Set(foundChCTe)];
                 
                 if (foundChCTe.length > 0) {
                     xmlOutput.value = foundChCTe.join('\n');
@@ -449,14 +483,17 @@
                     showStatus(`Processamento concluído! ${foundChCTe.length} chaves encontradas.`, 'success');
                 } else {
                     xmlOutput.value = '';
-                    resultInfo.textContent = 'Nenhuma tag chCTe encontrada dentro de idDocAntEle';
-                    showStatus('Nenhuma tag chCTe encontrada dentro de idDocAntEle.', 'error');
+                    resultInfo.textContent = 'Nenhuma tag chCTe encontrada no XML';
+                    showStatus('Nenhuma tag chCTe encontrada no XML. Verifique se o arquivo contém tags chCTe.', 'error');
+                    
+                    // Mostrar um preview do conteúdo para debug
+                    console.log("Conteúdo XML (primeiros 500 caracteres):", xmlContent.substring(0, 500));
                 }
             } catch (e) {
                 xmlOutput.value = '';
                 resultInfo.textContent = 'Erro ao processar o XML';
                 showStatus('Erro ao processar o XML: ' + e.message, 'error');
-                console.error(e);
+                console.error('Erro detalhado:', e);
             }
         }
 
@@ -479,7 +516,7 @@
             }
             
             try {
-                const blob = new Blob([output], { type: 'text/plain' });
+                const blob = new Blob([output], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
@@ -491,6 +528,7 @@
                 showStatus('Download iniciado com sucesso!', 'success');
             } catch (e) {
                 showStatus('Erro ao gerar o download: ' + e.message, 'error');
+                console.error('Erro no download:', e);
             }
         }
 
@@ -516,13 +554,13 @@
             });
             
             function highlight() {
-                dropArea.style.borderColor = var(--primary-color);
+                dropArea.style.borderColor = '#4361ee';
                 dropArea.style.backgroundColor = 'rgba(67, 97, 238, 0.1)';
             }
             
             function unhighlight() {
                 dropArea.style.borderColor = '#adb5bd';
-                dropArea.style.backgroundColor = var(--light-color);
+                dropArea.style.backgroundColor = '#f8f9fa';
             }
             
             dropArea.addEventListener('drop', handleDrop, false);
@@ -532,11 +570,51 @@
                 const files = dt.files;
                 
                 if (files.length) {
+                    // Atribui os arquivos ao input
                     fileUpload.files = files;
-                    const event = new Event('change');
+                    
+                    // Dispara o evento change manualmente
+                    const event = new Event('change', { bubbles: true });
                     fileUpload.dispatchEvent(event);
                 }
+                
+                unhighlight();
             }
+            
+            // Também adicionar drag and drop para a área de texto
+            const textArea = document.getElementById('xmlInput');
+            textArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                textArea.style.borderColor = '#4361ee';
+                textArea.style.backgroundColor = 'rgba(67, 97, 238, 0.05)';
+            });
+            
+            textArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                textArea.style.borderColor = '#ced4da';
+                textArea.style.backgroundColor = 'white';
+            });
+            
+            textArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                textArea.style.borderColor = '#ced4da';
+                textArea.style.backgroundColor = 'white';
+                
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                
+                if (files.length && files[0].type.includes('text') || files[0].name.endsWith('.xml')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        textArea.value = e.target.result;
+                        showStatus('Arquivo carregado na área de texto!', 'success');
+                    };
+                    reader.readAsText(files[0]);
+                }
+            });
         });
     </script>
 </body>
